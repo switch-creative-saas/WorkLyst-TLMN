@@ -1,0 +1,67 @@
+import type { NGORequest } from '@/types/ngo';
+
+export const ngoRequests: NGORequest[] = [
+  {
+    id: 'req-1',
+    type: 'Travel',
+    title: 'Field Visit – Plateau Monitoring',
+    requester: 'Aaron Hamilton',
+    department: 'Programs',
+    amount: 185000,
+    status: 'In Review',
+    priority: 'High',
+    submittedAt: '2025-05-28',
+    currentStep: 'Program Manager',
+    approvalHistory: [
+      { id: 's1', role: 'Supervisor', approver: 'Dr. Sarah Okonkwo', status: 'Approved', date: '2025-05-29' },
+      { id: 's2', role: 'Program Manager', status: 'Pending' },
+      { id: 's3', role: 'Finance', status: 'Pending' },
+    ],
+  },
+  {
+    id: 'req-2',
+    type: 'Procurement',
+    title: 'Training Materials – Self-Care Groups',
+    requester: 'Grace Emeka',
+    department: 'Programs',
+    amount: 320000,
+    status: 'Submitted',
+    priority: 'Medium',
+    submittedAt: '2025-06-01',
+    currentStep: 'Supervisor',
+    approvalHistory: [
+      { id: 's1', role: 'Supervisor', status: 'Pending' },
+      { id: 's2', role: 'Finance', status: 'Pending' },
+    ],
+  },
+  {
+    id: 'req-3',
+    type: 'Budget',
+    title: 'Q3 Program Budget Revision',
+    requester: 'James Adeyemi',
+    department: 'Programs',
+    amount: 2500000,
+    status: 'Approved',
+    priority: 'Urgent',
+    submittedAt: '2025-05-20',
+    currentStep: 'Completed',
+    approvalHistory: [
+      { id: 's1', role: 'Program Director', approver: 'National Director', status: 'Approved', date: '2025-05-22' },
+      { id: 's2', role: 'Finance Director', approver: 'Finance Team', status: 'Approved', date: '2025-05-24' },
+    ],
+  },
+  {
+    id: 'req-4',
+    type: 'Leave',
+    title: 'Annual Leave – June',
+    requester: 'Aaron Hamilton',
+    department: 'Programs',
+    status: 'Approved',
+    priority: 'Low',
+    submittedAt: '2025-05-15',
+    currentStep: 'Completed',
+    approvalHistory: [
+      { id: 's1', role: 'Supervisor', status: 'Approved', date: '2025-05-16' },
+    ],
+  },
+];

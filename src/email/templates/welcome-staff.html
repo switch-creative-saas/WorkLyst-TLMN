@@ -1,0 +1,9 @@
+<div class="email-icon">👋</div>
+<h2>Welcome to {{orgName}}!</h2>
+<p>Hi <strong>{{firstName}}</strong>,</p>
+<p>Your staff account has been created on the <strong>{{orgName}} Operations Platform</strong>. You can now log in to access your dashboard, submit timesheets, request leave, and more.</p>
+<p>Here are your login credentials:</p>
+<div class="credentials-box"><div class="cred-row"><span class="cred-label">Username</span><span class="cred-value">{{username}}</span></div><div class="cred-row"><span class="cred-label">Temporary Password</span><span class="cred-value">{{tempPassword}}</span></div><div class="cred-row"><span class="cred-label">Your Role</span><span class="cred-value">{{role}}</span></div></div>
+<div class="warning-box"><p>🔒 <strong>You will be required to change your password on first login.</strong> Please keep your credentials secure and do not share them with anyone.</p></div>
+<div class="btn-wrapper"><a href="{{loginUrl}}" class="btn-primary">Log In to Your Dashboard</a></div>
+<p class="url-fallback">Platform URL: {{loginUrl}}</p>

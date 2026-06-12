@@ -1,0 +1,285 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String
+  role              String
+  createdAt         DateTime           @default(now())
+  attendanceRecords AttendanceRecord[]
+  safeguardingReports SafeguardingReport[]
+  safeguardingConfigs SystemConfig[]    @relation("SafeguardingLead")
+  submittedRequests Request[]            @relation("RequestSubmitter")
+  requestSignatures RequestSignature[]
+  hostedVisitors   Visitor[]             @relation("VisitorHost")
+  loggedVisitors   Visitor[]             @relation("VisitorLogger")
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  status      String
+  budget      Float
+  spent       Float    @default(0)
+  donor       String?
+  location    String?
+  startDate   DateTime
+  endDate     DateTime
+  manager     String?
+  description String?
+  projects    Project[]
+  activities  Activity[]
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id         String  @id @default(cuid())
+  programId  String
+  program    Program @relation(fields: [programId], references: [id])
+  name       String
+  status     String
+  budget     Float
+  indicators Int     @default(0)
+}
+
+model Activity {
+  id               String  @id @default(cuid())
+  programId        String
+  program          Program @relation(fields: [programId], references: [id])
+  title            String
+  type             String
+  status           String
+  date             DateTime
+  location         String?
+  lead             String?
+  budget           Float?
+  participants     Int?
+  expectedOutcomes String?
+  actualOutcomes   String?
+}
+
+model Request {
+  id                String              @id @default(cuid())
+  requestCode       String              @unique
+  title             String
+  requestType       String
+  fundSource        String
+  thematicId        String
+  projectId         String
+  station           String
+  background        String
+  objectives        String
+  plannedActivities String
+  expectedOutputs   String
+  expectedOutcomes  String
+  startDate         DateTime
+  endDate           DateTime
+  implementingTeam  String?
+  lineItems         Json
+  totalAmount       Float
+  amountInWords     String
+  beingPaymentFor   String
+  status            String              @default("Draft")
+  currentStage      String              @default("Submitter")
+  workflowChain     String[]
+  submitterId       String
+  submitter         User                @relation("RequestSubmitter", fields: [submitterId], references: [id])
+  signatures        RequestSignature[]
+  attachments       RequestAttachment[]
+  paymentMethod     String?
+  paymentDate       DateTime?
+  transactionRef    String?
+  paymentEvidenceUrl String?
+  amountDisbursed   Float?
+  financeNotes      String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([submitterId, status])
+  @@index([currentStage, status])
+}
+
+model RequestSignature {
+  id         String   @id @default(cuid())
+  requestId  String
+  request    Request  @relation(fields: [requestId], references: [id])
+  stage      String
+  signedById String
+  signedBy   User     @relation(fields: [signedById], references: [id])
+  signedName String
+  action     String
+  comment    String?
+  ipAddress  String?
+  signedAt   DateTime @default(now())
+
+  @@index([requestId, stage])
+  @@index([signedById])
+}
+
+model RequestAttachment {
+  id         String   @id @default(cuid())
+  requestId  String
+  request    Request  @relation(fields: [requestId], references: [id])
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  uploadedAt DateTime @default(now())
+
+  @@index([requestId])
+}
+
+model WorkflowDefinition {
+  id         String @id @default(cuid())
+  name       String
+  entityType String
+  steps      Json
+  active     Boolean @default(true)
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  title      String
+  category   String
+  version    Int      @default(1)
+  status     String
+  uploadedBy String
+  programId  String?
+  tags       String[]
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+model BrandingConfig {
+  id              String   @id @default(cuid())
+  orgName         String   @default("TLMN DOHRMP")
+  orgAcronym      String   @default("TD")
+  tagline         String   @default("Digitizing Operations for Better Impact")
+  logoUrl         String?
+  faviconUrl      String?
+  address         String?
+  primaryColor    String   @default("#7C3AED")
+  secondaryColor  String   @default("#1E1B4B")
+  accentColor     String   @default("#10B981")
+  loginPanelColor String   @default("#1E1B4B")
+  loginHeadline   String?
+  loginSubtext    String?
+  loginBgImageUrl String?
+  fontFamily      String   @default("Inter")
+  updatedAt       DateTime @updatedAt
+}
+
+model AttendanceConfig {
+  id                    String   @id @default(cuid())
+  workStartTime         String   @default("08:00")
+  workEndTime           String   @default("17:00")
+  gracePeriodMinutes    Int      @default(15)
+  earlyDepartureMinutes Int      @default(30)
+  workDays              String[] @default(["MON", "TUE", "WED", "THU", "FRI"])
+  breakDurationMinutes  Int      @default(60)
+  notifyLate            Boolean  @default(true)
+  notifyAbsent          Boolean  @default(true)
+  dailySummaryToHR      Boolean  @default(true)
+  updatedAt             DateTime @updatedAt
+}
+
+model AttendanceRecord {
+  id           String   @id @default(cuid())
+  employeeId   String
+  employee     User     @relation(fields: [employeeId], references: [id])
+  date         DateTime
+  signInTime   DateTime?
+  signOutTime  DateTime?
+  status       String
+  minutesLate  Int      @default(0)
+  minutesEarly Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([employeeId, date])
+}
+
+model SystemConfig {
+  id                  String   @id @default(cuid())
+  safeguardingLeadId  String?
+  safeguardingLead    User?    @relation("SafeguardingLead", fields: [safeguardingLeadId], references: [id])
+  updatedAt           DateTime @updatedAt
+}
+
+model SafeguardingReport {
+  id              String                       @id @default(cuid())
+  reportCode      String                       @unique
+  reporterId      String?
+  reporter        User?                        @relation(fields: [reporterId], references: [id])
+  isAnonymous     Boolean                      @default(false)
+  issueType       String
+  incidentDate    DateTime
+  location        String
+  description     String
+  personsInvolved String?
+  evidenceUrl     String?
+  status          String                       @default("New")
+  internalNotes   String?
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  statusHistory   SafeguardingStatusHistory[]
+}
+
+model SafeguardingStatusHistory {
+  id        String              @id @default(cuid())
+  reportId  String
+  report    SafeguardingReport  @relation(fields: [reportId], references: [id])
+  status    String
+  updatedBy String
+  note      String?
+  createdAt DateTime            @default(now())
+}
+
+model Visitor {
+  id             String    @id @default(cuid())
+  visitorName    String
+  visitorPhone   String?
+  hostEmployeeId String
+  hostEmployee   User      @relation("VisitorHost", fields: [hostEmployeeId], references: [id])
+  purpose        String
+  checkInTime    DateTime  @default(now())
+  checkOutTime   DateTime?
+  status         String    @default("CheckedIn")
+  photoUrl       String?
+  loggedById     String
+  loggedBy       User      @relation("VisitorLogger", fields: [loggedById], references: [id])
+  createdAt      DateTime  @default(now())
+
+  @@index([hostEmployeeId])
+  @@index([loggedById])
+  @@index([checkInTime])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
